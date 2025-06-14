@@ -1,0 +1,11 @@
+package templates
+
+
+
+templ Page(content string) {
+    @Base() {
+        <div>
+            @templ.Raw(content)
+        </div>
+    }
+}

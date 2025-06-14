@@ -1,0 +1,16 @@
+github.com/a-h/templ v0.3.865 h1:nYn5EWm9EiXaDgWcMQaKiKvrydqgxDUtT1+4zU2C43A=
+github.com/a-h/templ v0.3.865/go.mod h1:oLBbZVQ6//Q6zpvSMPTuBK0F3qOtBdFBcGRspcT+VNQ=
+github.com/gomarkdown/markdown v0.0.0-20250311123330-531bef5e742b h1:EY/KpStFl60qA17CptGXhwfZ+k1sFNJIUNR8DdbcuUk=
+github.com/gomarkdown/markdown v0.0.0-20250311123330-531bef5e742b/go.mod h1:JDGcbDT52eL4fju3sZ4TeHGsQwhG9nbDV21aMyhwPoA=
+github.com/gomarkdown/mdtohtml v0.0.0-20240124153210-d773061d1585 h1:gfB9CukKWjBI83xByTJwpOkSwFD+Ev+2m3U332KZCLo=
+github.com/gomarkdown/mdtohtml v0.0.0-20240124153210-d773061d1585/go.mod h1:6grYm5/uY15CwgBBqwA3+o/cAzaxssckznJ0B35ouBY=
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/rickb777/path v1.3.1 h1:U+Ot5Uh6A+1Xf+i7Do5+xbbdIanI3n4HG1uecsYx4RU=
+github.com/rickb777/path v1.3.1/go.mod h1:cxsBIOXR+rZ9vgQQQh/j3vYuNLG/G9gMZIUeNDAM5+k=
+github.com/rickb777/servefiles/v3 v3.9.5 h1:PyZ4cna8eMQx9Os19fYC69/wgqAHiA0vHNJurMFrebk=
+github.com/rickb777/servefiles/v3 v3.9.5/go.mod h1:/2Hb++44p5T2RhVag7x24KOJWLdMEKlre/dT5OA8FSk=
+github.com/spf13/afero v1.14.0 h1:9tH6MapGnn/j0eb0yIXiLjERO8RB6xIVZRDCX7PtqWA=
+github.com/spf13/afero v1.14.0/go.mod h1:acJQ8t0ohCGuMN3O+Pv0V0hgMxNYDlvdk+VTfyZmbYo=
+golang.org/x/text v0.25.0 h1:qVyWApTSYLk/drJRO5mDlNYskwQznZmkpV2c8q9zls4=
+golang.org/x/text v0.25.0/go.mod h1:WEdwpYrmk1qmdHvhkSTNPm3app7v4rsT8F2UD6+VHIA=

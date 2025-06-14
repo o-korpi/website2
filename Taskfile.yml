@@ -1,0 +1,32 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  templ:
+    cmds:
+      - templ generate
+
+  air:
+    cmds:
+      - air
+
+  build:
+    cmds:
+      - templ generate
+      - go build -o bin/app
+
+  run:
+    deps:
+      - build
+    cmds:
+      - ./bin/app
+
+  test:
+    cmds:
+      - go test -v ./... -count=1
+
+

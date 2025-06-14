@@ -1,0 +1,10 @@
+
+body {
+    background-color: aliceblue;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.inline-latex-block {
+    font-size: 1.5rem;
+    text-align: center;
+}
