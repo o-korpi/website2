@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
@@ -10,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 	"website/templates"
 )
@@ -67,7 +69,7 @@ func handleDynamic(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Save the HTML
-	err = os.WriteFile(mdPath+".html", parsedBytes, 0644)
+	err = os.WriteFile(strings.Replace(mdPath, ".md", "", 1)+".html", parsedBytes, 0644)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -151,7 +153,7 @@ func main() {
 	router := http.NewServeMux()
 	router.HandleFunc("GET /", handleIndex)
 	router.HandleFunc("GET /page/{resource}", handleDynamic)
-	static := servefiles.NewAssetHandler("./static/").WithMaxAge(time.Hour)
+	static := servefiles.NewAssetHandler("./static/").WithMaxAge(time.Second) // todo: different time on deploy, ex hour
 	router.Handle("GET /static/", http.StripPrefix("/static/", static))
 
 	stack := CreateStack(Logging)
@@ -160,6 +162,8 @@ func main() {
 		Addr:    ":8080",
 		Handler: stack(router),
 	}
+
+	fmt.Println("Server starting")
 
 	err := server.ListenAndServe()
 	if err != nil {
