@@ -7,8 +7,9 @@ import (
 )
 
 type File struct {
-	Name string
-	Path string
+	Name     string
+	Path     string
+	Selected bool // Used to indicate if this file is currently selected
 }
 
 type Folder struct {
@@ -17,7 +18,7 @@ type Folder struct {
 	Subfolders []Folder
 }
 
-func FileTree(folder string) (Folder, error) {
+func FileTree(folder string, selectedPath string) (Folder, error) {
 	// Get the display name for this folder
 	splitPath := strings.Split(folder, string(os.PathSeparator))
 	displayName := splitPath[len(splitPath)-1] // Get the last part of the path
@@ -40,7 +41,7 @@ func FileTree(folder string) (Folder, error) {
 
 		if entry.IsDir() {
 			// Recursively build the subfolder tree
-			subFolder, err := FileTree(entryPath)
+			subFolder, err := FileTree(entryPath, selectedPath)
 			if err != nil {
 				return Folder{}, err
 			}
@@ -52,10 +53,12 @@ func FileTree(folder string) (Folder, error) {
 			fileName := strings.TrimSuffix(entry.Name(), ".md")
 			filePath := strings.TrimSuffix(entryPath, ".md")
 			filePath = strings.TrimPrefix(filePath, "public/")
+			selected := filePath == selectedPath
 
 			file := File{
-				Name: fileName,
-				Path: filePath,
+				Name:     fileName,
+				Path:     filePath,
+				Selected: selected,
 			}
 
 			rootFolder.Files = append(rootFolder.Files, file)

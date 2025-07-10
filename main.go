@@ -26,8 +26,10 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDynamic(w http.ResponseWriter, r *http.Request) {
+	resource := r.PathValue("resource")
+
 	// Get all known dynamic files for navigation purposes
-	folder, err := models.FileTree("public")
+	folder, err := models.FileTree("public", resource)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Fatal(err)
@@ -36,8 +38,7 @@ func handleDynamic(w http.ResponseWriter, r *http.Request) {
 
 	// MD from static
 	// TODO: check if HTML file exists
-	log.Println("Accessing resource:", r.PathValue("resource"))
-	mdPath := filepath.Join("public", r.PathValue("resource")+".md")
+	mdPath := filepath.Join("public", resource+".md")
 	md, err := os.ReadFile(mdPath)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -81,6 +82,8 @@ func handleDynamic(w http.ResponseWriter, r *http.Request) {
 		parsedBytes = append(parsedBytes, b)
 	}
 
+	// TODO: improve the code blocks, similar parsing to above
+
 	// Save the HTML
 	err = os.WriteFile(strings.Replace(mdPath, ".md", "", 1)+".html", parsedBytes, 0644)
 	if err != nil {
@@ -89,7 +92,7 @@ func handleDynamic(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// HTML from static
-	resource := strings.Replace(r.PathValue("resource"), ".md", "", 1)
+	resource = strings.Replace(r.PathValue("resource"), ".md", "", 1)
 
 	path := filepath.Join("public", resource+".html")
 	contentBytes, err := os.ReadFile(path)
