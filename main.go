@@ -25,6 +25,21 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 	_ = component.Render(ctx, w)
 }
 
+func handleArticles(w http.ResponseWriter, r *http.Request) {
+	// Get all known articles for navigation purposes
+	folder, err := models.FileTree("public", "")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Fatal(err)
+		return
+	}
+
+	// Render the articles page with the folder structure
+	component := templates.Articles(folder)
+	ctx := r.Context()
+	_ = component.Render(ctx, w)
+}
+
 func handleDynamic(w http.ResponseWriter, r *http.Request) {
 	resource := r.PathValue("resource")
 
@@ -103,7 +118,15 @@ func handleDynamic(w http.ResponseWriter, r *http.Request) {
 	}
 	content := string(contentBytes)
 
-	component := templates.Page(folder, content)
+	// Fancy breadcrumbs stuff
+	splitResource := strings.Split(resource, "/")
+	for i, part := range splitResource {
+		if i != len(splitResource)-1 {
+			splitResource[i] = strings.ToUpper(part[:1]) + part[1:] // Capitalize first letter
+		}
+	}
+
+	component := templates.Page(folder, splitResource, content)
 	ctx := r.Context()
 	_ = component.Render(ctx, w)
 }
@@ -168,6 +191,7 @@ func Authentication(next http.Handler) http.Handler {
 func main() {
 	router := http.NewServeMux()
 	router.HandleFunc("GET /", handleIndex)
+	router.HandleFunc("GET /articles", handleArticles)
 	router.HandleFunc("GET /page/{resource...}", handleDynamic)
 	static := servefiles.NewAssetHandler("./static/").WithMaxAge(time.Second) // todo: different time on deploy, ex hour
 	router.Handle("GET /static/", http.StripPrefix("/static/", static))

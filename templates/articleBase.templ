@@ -1,0 +1,53 @@
+package templates
+
+import "website/src/models"
+
+
+templ renderMenuItem(file models.File) {
+    <li>
+        if file.Selected {
+            <a class="menu-active" href={ "/page/" + file.Path }>
+                { file.Name }
+            </a>
+        } else {
+            <a href={ "/page/" + file.Path }>
+                { file.Name }
+            </a>
+        }
+    </li>
+}
+
+templ renderSimpleMenu(folder models.Folder) {
+    <li>
+        <span class="menu-title">{ folder.Name }</span>
+        <ul>
+            for _, file := range folder.Files {
+                @renderMenuItem(file)
+            }
+            for _, subfolder := range folder.Subfolders {
+                @renderSimpleMenu(subfolder)
+            }
+        </ul>
+    </li>
+}
+
+templ ArticleBase(folder models.Folder) {
+    @Base() {
+        <div class="flex flex-row h-full w-full">
+            <nav class="sticky top-0 pt-24 h-screen flex flex-col shrink-0 items-start p-4 bg-base-100 shadow-md overflow-y-scroll">
+                <ul class="menu w-56">
+                    for _, file := range folder.Files {
+                        @renderMenuItem(file)
+                    }
+                    for _, subfolder := range folder.Subfolders {
+                        @renderSimpleMenu(subfolder)
+                    }
+                </ul>
+            </nav>
+
+            <main class="w-full bg-base-200 flex flex-col items-center p-16">
+                { children... }
+            </main>
+        </div>
+    }
+}

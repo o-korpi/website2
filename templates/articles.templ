@@ -1,0 +1,42 @@
+package templates
+
+import "website/src/models"
+
+templ articleNavItem(file models.File) {
+    <div class="card bg-base-100 shadow-md w-64">
+        <div class="card-body">
+            <h2 class="card-title">
+                <a href={ "/page/" + file.Path } class="text-gray-800 hover:text-gray-600">
+                    { file.Name }
+                </a>
+            </h2>
+            // <p class="text-gray-600">{ file.Description }</p>
+        </div>
+    </div>
+}
+
+templ traverseFolders(folder models.Folder) {
+    for _, file := range folder.Files {
+        @articleNavItem(file)
+    }
+    for _, subfolder := range folder.Subfolders {
+        @traverseFolders(subfolder)
+    }
+}
+
+templ Articles(folder models.Folder) {
+    @ArticleBase(folder) {
+        <div class="flex flex-col w-full">
+            <div class="breadcrumbs text-sm">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li class="text-gray-500">Articles</li>
+                </ul>
+            </div>
+
+            <div class="flex flex-row flex-wrap gap-4">
+                @traverseFolders(folder)
+            </div>
+        </div>
+    }
+}
