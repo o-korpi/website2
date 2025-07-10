@@ -18,7 +18,7 @@ templ Index() {
             }, { passive: false });
         </script>
 
-        <div class="flex h-full overflow-hidden">
+        <main class="flex h-full overflow-hidden">
             <div class="flex flex-col items-center justify-evenly p-4 bg-neutral text-neutral-content sticky top-0 w-1/2 max-h-full h-full">
                 <div class="border-b border-primary p-4">
                     <h1 class="text-4xl py-1">Oscar Korpi</h1>
@@ -32,8 +32,8 @@ templ Index() {
                 </div>
                 <div class="absolute left-0 bottom-0 p-2 text-sm text-neutral-content opacity-70">Copyright &copy; Oscar Korpi 2025</div>
             </div>
-            <div class="grid grid-cols-1 items-center p-8 px-24 w-1/2 overflow-y-scroll divide-y divide-primary" id="scrollable-content">
-                <div class="py-8">
+            <article class="grid grid-cols-1 items-center p-8 px-24 w-1/2 overflow-y-scroll divide-y divide-primary" id="scrollable-content">
+                <section class="py-8">
                     <h2 class="text-2xl text-gray-900">About me</h2>
                     <p class="py-2">
                         Hello! I'm Oscar, a student in Computer Science & Engineering at LTH, Sweden. 
@@ -50,9 +50,9 @@ templ Index() {
                             <li><a class="link" href="mailto:contact@korpi.se">Email</a></li>
                         </ul>
                     </p>
-                </div>
+                </section>
                 
-                <div class="py-8">
+                <section class="py-8">
                     <h2 class="text-2xl text-gray-900">Professional experience</h2>
 
                     <ul>
@@ -123,9 +123,9 @@ templ Index() {
                             </ul>
                         </li>
                     </ul>
-                </div>
+                </section>
 
-                <div class="py-8">
+                <section class="py-8">
                     <h2 class="text-2xl text-gray-900">Education</h2>
 
                     <ul>
@@ -171,13 +171,13 @@ templ Index() {
                             </div>
                         </li>
                     </ul>
-                </div>
+                </section>
 
-                <div class="py-8">
+                <section class="py-8">
                     <h2 class="text-2xl text-gray-900">Featured personal projects</h2>
-                </div>  
+                </section>  
                 
-                <div class="py-8">
+                <section class="py-8">
                     <h2 class="text-2xl text-gray-900">About this website</h2>
                     <p class="py-2">
                         This website was built using Go, Templ, HTMX and surreal.js. HTMX and surreal.js bring interactivity to the website,
@@ -188,8 +188,8 @@ templ Index() {
                         The blog pages are created by rendering Markdown and converting it to HTML. 
                         Inline LaTeX support is added using some custom parsing and by using MathJax on the frontend.
                     </p>
-                </div>
-            </div>
-        </div>
+                </section>
+            </article>
+        </main>
     }
 }

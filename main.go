@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"website/src"
 	"website/templates"
 
 	"github.com/gomarkdown/markdown"
@@ -59,6 +60,23 @@ func handleDynamic(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Fatal(err)
 	}
+
+	// todo: remove me!
+	// frontmatter test
+	frontmatter, err := src.ScanFrontmatter(mdPath)
+	if err != nil {
+		log.Println("Error scanning frontmatter:", err)
+	} else {
+		log.Println("Frontmatter:", frontmatter)
+	}
+	parsedFm, err := src.ParseFrontmatter(frontmatter)
+	if err != nil {
+		log.Println("Error parsing frontmatter:", err)
+	} else {
+		log.Println("Parsed frontmatter:", parsedFm)
+		log.Println(parsedFm.Author, parsedFm.Created, parsedFm.Updated)
+	}
+	//
 
 	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock
 	p := parser.NewWithExtensions(extensions)
