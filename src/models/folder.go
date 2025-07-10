@@ -1,7 +1,6 @@
 package models
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,37 +18,40 @@ type Folder struct {
 }
 
 func FileTree(folder string) (Folder, error) {
-
+	// Get the display name for this folder
 	splitPath := strings.Split(folder, string(os.PathSeparator))
 	displayName := splitPath[len(splitPath)-1] // Get the last part of the path
 	displayName = strings.ToUpper(displayName[:1]) + displayName[1:]
+
 	rootFolder := Folder{
 		Name:       displayName,
 		Files:      []File{},
 		Subfolders: []Folder{},
 	}
 
-	err := filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
+	// Read only the immediate contents of this directory
+	entries, err := os.ReadDir(folder)
+	if err != nil {
+		return Folder{}, err
+	}
 
-		if info.IsDir() {
-			if path == folder {
-				// Skip the root folder itself
-				return nil
-			}
+	for _, entry := range entries {
+		entryPath := filepath.Join(folder, entry.Name())
 
-			log.Println("Visiting folder:", path)
-			subFolder, err := FileTree(path)
+		if entry.IsDir() {
+			// Recursively build the subfolder tree
+			subFolder, err := FileTree(entryPath)
 			if err != nil {
-				return err
+				return Folder{}, err
 			}
 
 			rootFolder.Subfolders = append(rootFolder.Subfolders, subFolder)
-		} else if strings.HasSuffix(info.Name(), ".md") {
-			fileName := strings.TrimSuffix(info.Name(), ".md")
-			filePath := strings.TrimPrefix(path, "public/")
+
+		} else if strings.HasSuffix(entry.Name(), ".md") {
+			// Only process .md files
+			fileName := strings.TrimSuffix(entry.Name(), ".md")
+			filePath := strings.TrimSuffix(entryPath, ".md")
+			filePath = strings.TrimPrefix(filePath, "public/")
 
 			file := File{
 				Name: fileName,
@@ -58,15 +60,7 @@ func FileTree(folder string) (Folder, error) {
 
 			rootFolder.Files = append(rootFolder.Files, file)
 		}
-
-		return nil
-	})
-
-	if err != nil {
-		return Folder{}, err
 	}
-
-	log.Printf("Folder %v\n", rootFolder)
 
 	return rootFolder, nil
 }

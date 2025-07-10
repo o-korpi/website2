@@ -36,9 +36,11 @@ func handleDynamic(w http.ResponseWriter, r *http.Request) {
 
 	// MD from static
 	// TODO: check if HTML file exists
-	mdPath := filepath.Join("public", "example.md")
+	log.Println("Accessing resource:", r.PathValue("resource"))
+	mdPath := filepath.Join("public", r.PathValue("resource")+".md")
 	md, err := os.ReadFile(mdPath)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Fatal(err)
 	}
 
@@ -163,7 +165,7 @@ func Authentication(next http.Handler) http.Handler {
 func main() {
 	router := http.NewServeMux()
 	router.HandleFunc("GET /", handleIndex)
-	router.HandleFunc("GET /page/{resource}", handleDynamic)
+	router.HandleFunc("GET /page/{resource...}", handleDynamic)
 	static := servefiles.NewAssetHandler("./static/").WithMaxAge(time.Second) // todo: different time on deploy, ex hour
 	router.Handle("GET /static/", http.StripPrefix("/static/", static))
 
