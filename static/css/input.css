@@ -1,0 +1,21 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@plugin "daisyui" {
+    themes: light --default;
+}
+@plugin "daisyui/theme" {
+    name: "light";
+    default: true;
+
+
+    --color-base-content: oklch(26% 0.007 34.298);
+    --color-primary: oklch(77% 0.152 181.912);
+    --color-primary-content: oklch(37% 0.013 285.805);
+    --color-neutral: oklch(37% 0.013 285.805);  
+    --color-neutral-content: oklch(92% 0.003 48.717);
+}
+
+
+@theme {
+    --font-sans: "Raleway", sans-serif;
+}

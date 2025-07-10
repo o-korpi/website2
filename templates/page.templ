@@ -4,8 +4,50 @@ package templates
 
 templ Page(content string) {
     @Base() {
-        <div>
-            @templ.Raw(content)
+        <div class="flex flex-row h-full w-full">
+            <nav class="grow-0 left-0 top-0 sticky h-full flex flex-col items-start p-4 bg-base-100 shadow-md">
+                <ul class="menu w-56">
+                    <li>
+                        <h2 class="menu-title">Projects</h2>
+                        <ul>
+                            <li><a class="menu-active">Test</a></li>
+                            <li><a>Test</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <h2 class="menu-title">DSP</h2>
+                        <ul>
+                            <li><a>Test</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a class="menu-title">Statistics</a>
+                        <ul>
+                            <li><a>Test</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="w-full bg-base-200 flex flex-col items-center p-16">
+                <div class="flex flex-col w-full">
+                    <div class="breadcrumbs text-sm">
+                        <ul>
+                            <li><a href="/">Home</a></li>
+                            <li><a href="/page/example.md">Articles</a></li>
+                            <li class="text-gray-500">Page</li>
+                        </ul>
+                    </div>
+
+                    <div class="card bg-base-100 shadow-md w-full">
+                        <div class="prose card-body">
+                            @templ.Raw(content)
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     }
 }

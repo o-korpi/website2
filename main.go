@@ -2,11 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/gomarkdown/markdown"
-	"github.com/gomarkdown/markdown/html"
-	"github.com/gomarkdown/markdown/parser"
-	"github.com/google/uuid"
-	"github.com/rickb777/servefiles/v3"
 	"log"
 	"net/http"
 	"os"
@@ -14,6 +9,12 @@ import (
 	"strings"
 	"time"
 	"website/templates"
+
+	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
+	"github.com/google/uuid"
+	"github.com/rickb777/servefiles/v3"
 )
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +77,7 @@ func handleDynamic(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// HTML from static
-	resource := r.PathValue("resource")
+	resource := strings.Replace(r.PathValue("resource"), ".md", "", 1)
 
 	path := filepath.Join("public", resource+".html")
 	contentBytes, err := os.ReadFile(path)
@@ -163,7 +164,7 @@ func main() {
 		Handler: stack(router),
 	}
 
-	fmt.Println("Server starting")
+	fmt.Println("Server running on port :8080")
 
 	err := server.ListenAndServe()
 	if err != nil {

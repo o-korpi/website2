@@ -1,4 +1,4 @@
-# This is a header
+# This is a header with some W
 And this is text
 
 Some inline latex:
@@ -24,4 +24,11 @@ Without lang:
 <div>
     Test
 </div>
+
+# this is a comment, please do not make me large!
 ```
+# hej hej
+
+### subheader
+
+$e^x - 3$
