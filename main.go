@@ -23,7 +23,66 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 	_ = component.Render(ctx, w)
 }
 
+type Folder struct {
+	Name       string
+	Files      []string
+	Subfolders []Folder
+}
+
+func fileTree(folder string) (Folder, error) {
+
+	splitPath := strings.Split(folder, string(os.PathSeparator))
+	displayName := splitPath[len(splitPath)-1] // Get the last part of the path
+	displayName = strings.ToUpper(displayName[:1]) + displayName[1:]
+	rootFolder := Folder{
+		Name:       displayName,
+		Files:      []string{},
+		Subfolders: []Folder{},
+	}
+
+	err := filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			if path == folder {
+				// Skip the root folder itself
+				return nil
+			}
+
+			log.Println("Visiting folder:", path)
+			subFolder, err := fileTree(path)
+			if err != nil {
+				return err
+			}
+
+			rootFolder.Subfolders = append(rootFolder.Subfolders, subFolder)
+		} else if strings.HasSuffix(info.Name(), ".md") {
+			fileName := strings.TrimSuffix(info.Name(), ".md")
+			rootFolder.Files = append(rootFolder.Files, fileName)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return Folder{}, err
+	}
+
+	return rootFolder, nil
+}
+
 func handleDynamic(w http.ResponseWriter, r *http.Request) {
+	// Get all known dynamic files for navigation purposes
+	folders, err := fileTree("public")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Fatal(err)
+		return
+	}
+	log.Printf("Folders: %+v\n", folders)
+
 	// MD from static
 	// TODO: check if HTML file exists
 	mdPath := filepath.Join("public", "example.md")

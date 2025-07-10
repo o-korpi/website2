@@ -1,8 +1,7 @@
 package templates
 
 
-
-templ Page(content string) {
+templ Page(folder Folder, content string) {
     @Base() {
         <div class="flex flex-row h-full w-full">
             <nav class="grow-0 left-0 top-0 sticky h-full flex flex-col items-start p-4 bg-base-100 shadow-md">
