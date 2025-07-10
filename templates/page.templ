@@ -1,32 +1,41 @@
 package templates
 
+import "website/src/models"
 
-templ Page(folder Folder, content string) {
+
+templ renderSimpleMenu(folder models.Folder) {
+    <li>
+        <span class="menu-title">{ folder.Name }</span>
+        <ul>
+            for _, file := range folder.Files {
+                <li>
+                    <a href={ "/page/" + file.Path }>
+                        { file.Name }
+                    </a>
+                </li>
+            }
+            for _, subfolder := range folder.Subfolders {
+                @renderSimpleMenu(subfolder)
+            }
+        </ul>
+    </li>
+}
+
+templ Page(folder models.Folder, content string) {
     @Base() {
         <div class="flex flex-row h-full w-full">
             <nav class="grow-0 left-0 top-0 sticky h-full flex flex-col items-start p-4 bg-base-100 shadow-md">
                 <ul class="menu w-56">
-                    <li>
-                        <h2 class="menu-title">Projects</h2>
-                        <ul>
-                            <li><a class="menu-active">Test</a></li>
-                            <li><a>Test</a></li>
-                        </ul>
-                    </li>
-
-                    <li>
-                        <h2 class="menu-title">DSP</h2>
-                        <ul>
-                            <li><a>Test</a></li>
-                        </ul>
-                    </li>
-
-                    <li>
-                        <a class="menu-title">Statistics</a>
-                        <ul>
-                            <li><a>Test</a></li>
-                        </ul>
-                    </li>
+                    for _, file := range folder.Files {
+                        <li>
+                            <a href={ templ.SafeURL("/page/" + file.Path) }>
+                                { file.Name }
+                            </a>
+                        </li>
+                    }
+                    for _, subfolder := range folder.Subfolders {
+                        @renderSimpleMenu(subfolder)
+                    }
                 </ul>
             </nav>
 
