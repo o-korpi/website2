@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -11,7 +12,12 @@ import (
 	"website/src"
 	"website/templates"
 
+	"github.com/alecthomas/chroma/v2"
+	"github.com/alecthomas/chroma/v2/formatters"
+	"github.com/alecthomas/chroma/v2/lexers"
+	"github.com/alecthomas/chroma/v2/styles"
 	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
 	"github.com/google/uuid"
@@ -39,6 +45,81 @@ func handleArticles(w http.ResponseWriter, r *http.Request) {
 	component := templates.Articles(folder)
 	ctx := r.Context()
 	_ = component.Render(ctx, w)
+}
+
+type CustomRenderer struct {
+	*html.Renderer
+}
+
+func (r *CustomRenderer) RenderNode(w io.Writer, node ast.Node, entering bool) ast.WalkStatus {
+	switch node := node.(type) {
+	case *ast.CodeBlock:
+		if entering {
+			// Custom code block rendering logic
+			lang := string(node.Info)
+			code := string(node.Literal)
+
+			var lexer chroma.Lexer
+			if lang == "" {
+				lexer = lexers.Analyse(code)
+			} else {
+				lexer = lexers.Get(lang)
+			}
+
+			if lexer == nil {
+				lexer = lexers.Fallback
+			}
+
+			style := styles.Get(styles.CatppuccinFrappe.Name) // Default style
+			if style == nil {
+				style = styles.Fallback
+			}
+			formatter := formatters.Get("html")
+			if formatter == nil {
+				formatter = formatters.Fallback
+			}
+			reader := strings.NewReader(code)
+			contents, _ := io.ReadAll(reader)
+			iterator, _ := lexer.Tokenise(nil, string(contents))
+
+			var formattedCode string
+			formattedCodeWriter := &strings.Builder{}
+			err := formatter.Format(formattedCodeWriter, style, iterator)
+			if err != nil {
+				log.Println("Error formatting code:", err)
+				return ast.GoToNext
+			}
+			formattedCode = formattedCodeWriter.String()
+
+			// Postprocess code block to remove body tags, html tags
+			codeBlock := strings.ReplaceAll(formattedCode, "<body>", "")
+			codeBlock = strings.ReplaceAll(codeBlock, "</body>", "")
+			codeBlock = strings.ReplaceAll(codeBlock, "<html>", "")
+			codeBlock = strings.ReplaceAll(codeBlock, "</html>", "")
+			// Remove unnecessary styles
+			bgLine := ""
+			bodyLine := ""
+			lines := strings.SplitSeq(codeBlock, "\n")
+			for line := range lines {
+				if strings.Contains(line, "/* Background */") {
+					bgLine = line
+				} else if strings.Contains(line, "body {") { // todo: use more robust method
+					bodyLine = line
+				}
+			}
+
+			codeBlock = strings.ReplaceAll(codeBlock, bgLine, "")
+			codeBlock = strings.ReplaceAll(codeBlock, bodyLine, "")
+
+			fmt.Fprintf(w, `<div >`)
+			fmt.Fprintf(w, "%s", codeBlock)
+			fmt.Fprintf(w, `</div>`)
+			return ast.GoToNext
+		}
+		return ast.GoToNext
+	default:
+		return r.Renderer.RenderNode(w, node, entering)
+	}
 }
 
 func handleDynamic(w http.ResponseWriter, r *http.Request) {
@@ -85,8 +166,9 @@ func handleDynamic(w http.ResponseWriter, r *http.Request) {
 	htmlFlags := html.CommonFlags | html.HrefTargetBlank
 	opts := html.RendererOptions{Flags: htmlFlags}
 	renderer := html.NewRenderer(opts)
+	customRenderer := &CustomRenderer{Renderer: renderer}
 
-	renderedBytes := markdown.Render(doc, renderer)
+	renderedBytes := markdown.Render(doc, customRenderer)
 
 	// Handle $$ inline latex
 	// Replaces $$...$$ with $<div class="inline-latex-block">...</div>$
