@@ -8,7 +8,9 @@ templ Index() {
             // Forward scroll events to the right column when scrolling anywhere on the page
             document.addEventListener('wheel', function(e) {
                 const scrollableContent = document.getElementById('scrollable-content');
-                if (scrollableContent && !scrollableContent.contains(e.target)) {
+                const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+
+                if (scrollableContent && !scrollableContent.contains(e.target) && isDesktop) {
                     // Prevent default scrolling behavior
                     e.preventDefault();
                     
@@ -18,9 +20,9 @@ templ Index() {
             }, { passive: false });
         </script>
 
-        <main class="flex h-full overflow-hidden">
-            <div class="flex flex-col items-center justify-evenly p-4 bg-neutral text-neutral-content sticky top-0 w-1/2 max-h-full h-full">
-                <div class="border-b border-primary p-4">
+        <main class="flex flex-col md:flex-row h-full md:overflow-hidden">
+            <div class="flex flex-col gap-8 md:gap-0 items-center justify-evenly p-8 md:p-4 bg-neutral text-neutral-content md:sticky top-0 md:w-1/2 md:max-h-full md:h-full">
+                <div class="border-b border-primary px-0 py-4 md:p-4">
                     <h1 class="text-4xl py-1">Oscar Korpi</h1>
                     <div>
                         <h2 class="text-2xl py-1">M.Sc. Student in Computer Science & Engineering at LTH</h2>
@@ -32,7 +34,8 @@ templ Index() {
                 </div>
                 <div class="absolute left-0 bottom-0 p-2 text-sm text-neutral-content opacity-70">Copyright &copy; Oscar Korpi 2025</div>
             </div>
-            <article class="grid grid-cols-1 items-center p-8 px-24 w-1/2 overflow-y-scroll divide-y divide-primary" id="scrollable-content">
+
+            <article class="grid grid-cols-1 items-center p-8 md:px-24 md:w-1/2 overflow-y-scroll divide-y divide-primary" id="scrollable-content">
                 <section class="py-8">
                     <h2 class="text-2xl text-gray-900">About me</h2>
                     <p class="py-2">
@@ -57,14 +60,14 @@ templ Index() {
 
                     <ul>
                         <li class="flex flex-col py-4">
-                            <div class="flex flex-row justify-between text-xl py-2">
+                            <div class="flex flex-col gap-1 md:gap-0 md:flex-row md:justify-between text-xl py-2">
                                 <h3 class="text-gray-900">Software Engineer &ndash; Nordic Civil Engineering</h3>
                                 <p>2025/02 &ndash; Now</p>
                             </div>
                             <p>
                                 Working with developing internal tooling.
                             </p>
-                            <ul class="join join-horizontal py-2">
+                            <ul class="join join-horizontal overflow-x-scroll md:overflow-x-auto py-2">
                                 <li class="badge badge-neutral join-item bg-[#B125EA] border-[#B125EA]">Kotlin&trade;</li>
                                 <li class="badge badge-neutral join-item bg-[#9179E4] border-[#9179E4]">C#</li>
                                 <li class="badge badge-neutral join-item bg-[#512BD4] border-[#512BD4]">.NET</li>
@@ -75,7 +78,7 @@ templ Index() {
                         </li>
 
                         <li class="flex flex-col py-4">
-                            <div class="flex flex-row justify-between text-xl py-2">
+                            <div class="flex flex-col gap-1 md:gap-0 md:flex-row md:justify-between text-xl py-2">
                                 <h3 class="text-gray-900">Teaching Assistant &ndash; Lund University</h3>
                                 <p>2024/06 &ndash; 2024/12</p>
                             </div>
@@ -84,21 +87,21 @@ templ Index() {
                                 Mainly worked as a lab assistant, helping students in the courses 
                                 Introduction to Programming in Scala and Programming, Second Course (Java). 
                             </p>
-                            <ul class="join join-horizontal py-2">
+                            <ul class="join join-horizontal overflow-x-scroll md:overflow-x-auto py-2">
                                 <li class="badge badge-neutral join-item bg-[#f89820] border-[#f89820] text-white">Java</li>
                                 <li class="badge badge-neutral join-item bg-[#DE3423] border-[#DE3423] text-[#380D09]">Scala</li>
                             </ul>
                         </li>
 
                         <li class="flex flex-col py-4">
-                            <div class="flex flex-row justify-between text-xl py-2">
+                            <div class="flex flex-col gap-1 md:gap-0 md:flex-row md:justify-between text-xl py-2">
                                 <h3 class="text-gray-900">Software Engineer, Summer Intern &ndash; Nordic Civil Engineering</h3>
                                 <p>2024/06 &ndash; 2024/08</p> 
                             </div>
                             <p>
                                 Worked during the summer on to develop the GoGreen Logistics project together with another student. 
                             </p>
-                            <ul class="join join-horizontal py-2">
+                            <ul class="join join-horizontal overflow-x-scroll md:overflow-x-auto py-2">
                                 <li class="badge badge-neutral join-item bg-[#B125EA] border-[#B125EA]">Kotlin&trade;</li>
                                 <li class="badge badge-neutral join-item bg-[#F0DB4F] border-[#F0DB4F] text-[#323330]">JavaScript</li>
                                 <li class="badge badge-neutral join-item bg-[#104581] border-[#104581]">Azure</li>
@@ -108,7 +111,7 @@ templ Index() {
                         </li>
 
                         <li class="flex flex-col py-4">
-                            <div class="flex flex-row justify-between text-xl py-2">
+                            <div class="flex flex-col gap-1 md:gap-0 md:flex-row md:justify-between text-xl py-2">
                                 <h3 class="text-gray-900">Teaching Assistant &ndash; Lund University</h3>
                                 <p>2023/08 &ndash; 2024/03</p>
                             </div>
@@ -117,7 +120,7 @@ templ Index() {
                                 Worked as a lab assistant, helping students in the courses 
                                 Introduction to Programming in Scala and Programming, Second Course (Java). 
                             </p>
-                            <ul class="join join-horizontal py-2">
+                            <ul class="join join-horizontal overflow-x-scroll md:overflow-x-auto py-2">
                                 <li class="badge badge-primary join-item bg-[#f89820] border-[#f89820] text-white">Java</li>
                                 <li class="badge badge-primary join-item bg-[#DE3423] border-[#DE3423] text-[#380D09]">Scala</li>
                             </ul>
@@ -130,7 +133,7 @@ templ Index() {
 
                     <ul>
                         <li class="flex flex-col py-4">
-                            <div class="w-full flex flex-row justify-between text-xl py-2">
+                            <div class="w-full flex flex-col gap-1 md:gap-0 md:flex-row md:justify-between text-xl py-2">
                                 <h3 class="text-gray-900">M.Sc. in Computer Science & Engineering at LTH</h3>
                                 <p>2022&ndash;2027</p>
                             </div>
@@ -156,7 +159,7 @@ templ Index() {
                         </li>
 
                         <li class="flex flex-col py-4">
-                            <div class="flex flex-row justify-between text-xl py-2">
+                            <div class="flex flex-col gap-1 md:gap-0 md:flex-row md:justify-between text-xl py-2">
                                 // <h3 class="text-gray-900">Economics: Level 1 (30hp)</h3>
                                 <h3 class="text-gray-900">Microeconomics (11hp)</h3>
                                 <p>2025</p>
@@ -165,7 +168,7 @@ templ Index() {
                         </li>
 
                         <li class="flex flex-col py-4">
-                            <div class="flex flex-row justify-between text-xl py-2">
+                            <div class="flex flex-col gap-1 md:gap-0 md:flex-row md:justify-between text-xl py-2">
                                 <h3 class="text-gray-900">Managerial Economics, Basic Course (7,5hp)</h3>
                                 <p>2024</p>
                             </div>

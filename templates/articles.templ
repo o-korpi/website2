@@ -3,7 +3,7 @@ package templates
 import "website/src/models"
 
 templ articleNavItem(file models.File) {
-    <div class="card bg-base-100 shadow-md w-64">
+    <div class="card bg-base-100 shadow-md w-full md:w-64">
         <div class="card-body">
             <h2 class="card-title">
                 <a href={ "/page/" + file.Path } class="text-gray-800 hover:text-gray-600">

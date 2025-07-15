@@ -197,7 +197,7 @@ func ArticleBase(folder models.Folder) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"flex flex-row h-full w-full\"><nav class=\"sticky top-0 pt-24 h-screen flex flex-col shrink-0 items-start p-4 bg-base-100 shadow-md overflow-y-scroll\"><ul class=\"menu w-56\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"flex flex-col md:flex-row h-full w-full min-h-dvh md:min-h-vh bg-base-200\"><nav class=\"hidden sticky top-0 pt-24 h-screen md:flex flex-col shrink-0 items-start p-4 bg-base-100 shadow-md overflow-y-scroll\"><ul class=\"menu w-56\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -213,7 +213,7 @@ func ArticleBase(folder models.Folder) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</ul></nav><main class=\"w-full bg-base-200 flex flex-col items-center p-16\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</ul></nav><main class=\"w-full h-full bg-base-200 flex flex-col items-center p-4 md:p-16\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
