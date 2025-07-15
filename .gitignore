@@ -35,3 +35,7 @@ go.work.sum
 
 # Air configuration file. User should copy one of the .unix or .windows files and rename it to .air.toml
 .air.toml  
+
+
+# Tailwind output. Removed to reduce repository size and remove excessive CSS from the repository.
+static/css/output.css
