@@ -1,8 +1,9 @@
 package templates
 
+import "website/src"
 import "website/src/models"
 
-templ Page(folder models.Folder, splitResource []string, content string) {
+templ Page(folder models.Folder, splitResource []string, fm src.Frontmatter, content string) {
     @ArticleBase(folder) {
         <div class="flex flex-col w-full">
             <div class="breadcrumbs text-sm">
@@ -19,8 +20,349 @@ templ Page(folder models.Folder, splitResource []string, content string) {
             </div>
 
             <div class="card bg-base-100 shadow-md w-full">
-                <article class="prose card-body">
+
+
+<script>
+class SidenotePositioner {
+    constructor() {
+        this.sidenotes = [];
+        this.init();
+    }
+
+    init() {
+        // Wait for layout to be complete
+        setTimeout(() => {
+            this.collectSidenotes();
+            this.positionSidenotes();
+            this.setupEventListeners();
+        }, 100);
+    }
+
+    collectSidenotes() {
+        const sidenoteElements = document.querySelectorAll('.sidenote');
+        const paragraphs = document.querySelectorAll('.main-content p');
+        
+        console.log('DEBUG: Found', sidenoteElements.length, 'sidenotes and', paragraphs.length, 'paragraphs');
+        
+        this.sidenotes = Array.from(sidenoteElements).map(element => {
+            const paragraphIndex = parseInt(element.getAttribute('data-paragraph-index'));
+            const targetParagraph = paragraphs[paragraphIndex];
+            
+            console.log('DEBUG: Sidenote', element.id, 'targets paragraph index', paragraphIndex, 'found paragraph:', !!targetParagraph);
+            
+            return {
+                element,
+                targetParagraph,
+                paragraphIndex,
+                height: 0,
+                targetTop: 0,
+                finalTop: 0
+            };
+        });
+    }
+
+    positionSidenotes() {
+        if (this.sidenotes.length === 0) {
+            console.log('DEBUG: No sidenotes to position');
+            return;
+        }
+
+        // Calculate initial positions based on target paragraphs
+        this.sidenotes.forEach(sidenote => {
+            if (sidenote.targetParagraph) {
+                const paragraphRect = sidenote.targetParagraph.getBoundingClientRect();
+                const contentWrapper = document.querySelector('.content-wrapper');
+                
+                if (!contentWrapper) {
+                    console.error('DEBUG: Could not find .content-wrapper element');
+                    return;
+                }
+                
+                const wrapperRect = contentWrapper.getBoundingClientRect();
+                
+                // Calculate position relative to the content wrapper
+                sidenote.targetTop = paragraphRect.top - wrapperRect.top;
+                sidenote.height = sidenote.element.offsetHeight || 100; // Fallback height
+                
+                console.log('DEBUG: Sidenote', sidenote.element.id, 
+                    'paragraph rect:', paragraphRect.top, 
+                    'wrapper rect:', wrapperRect.top,
+                    'target top:', sidenote.targetTop,
+                    'height:', sidenote.height);
+            } else {
+                console.warn('DEBUG: Sidenote', sidenote.element.id, 'has no target paragraph');
+                sidenote.targetTop = 0;
+                sidenote.height = sidenote.element.offsetHeight || 100;
+            }
+        });
+
+        // Sort by target position
+        this.sidenotes.sort((a, b) => a.targetTop - b.targetTop);
+
+        // Resolve overlaps
+        this.resolveOverlaps();
+
+        // Apply final positions
+        this.applySidenotesPositions();
+    }
+
+    resolveOverlaps() {
+        const minGap = 20; // Minimum gap between sidenotes
+
+        for (let i = 0; i < this.sidenotes.length; i++) {
+            const current = this.sidenotes[i];
+            current.finalTop = Math.max(0, current.targetTop); // Ensure non-negative
+
+            // Check for overlap with previous sidenotes
+            for (let j = 0; j < i; j++) {
+                const previous = this.sidenotes[j];
+                const previousBottom = previous.finalTop + previous.height + minGap;
+                
+                if (current.finalTop < previousBottom) {
+                    current.finalTop = previousBottom;
+                    console.log('DEBUG: Moved sidenote', current.element.id, 'to avoid overlap, new top:', current.finalTop);
+                }
+            }
+        }
+    }
+
+    applySidenotesPositions() {
+        this.sidenotes.forEach(sidenote => {
+            sidenote.element.style.top = `${sidenote.finalTop}px`;
+            console.log('DEBUG: Applied position to', sidenote.element.id, 'top:', sidenote.finalTop + 'px');
+        });
+    }
+
+    setupEventListeners() {
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                console.log('DEBUG: Window resized, repositioning sidenotes');
+                this.positionSidenotes();
+            }, 100);
+        });
+
+        // Highlight sidenotes on marker hover
+        document.querySelectorAll('.sidenote-marker').forEach(marker => {
+            marker.addEventListener('mouseenter', () => {
+                const sidenoteId = marker.getAttribute('data-sidenote-id');
+                const sidenote = document.getElementById('sidenote-' + sidenoteId);
+                if (sidenote) {
+                    sidenote.style.backgroundColor = '#e8f4f8';
+                    sidenote.style.borderLeftColor = '#007acc';
+                }
+            });
+
+            marker.addEventListener('mouseleave', () => {
+                const sidenoteId = marker.getAttribute('data-sidenote-id');
+                const sidenote = document.getElementById('sidenote-' + sidenoteId);
+                if (sidenote) {
+                    sidenote.style.backgroundColor = '';
+                    sidenote.style.borderLeftColor = '';
+                }
+            });
+        });
+    }
+
+    // Public method to recalculate positions
+    recalculate() {
+        console.log('DEBUG: Manually recalculating sidenote positions');
+        this.collectSidenotes();
+        this.positionSidenotes();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DEBUG: DOM loaded, initializing sidenote positioner');
+    window.sidenotePositioner = new SidenotePositioner();
+});
+
+// Also initialize after a delay to ensure all content is rendered
+window.addEventListener('load', () => {
+    console.log('DEBUG: Window loaded, recalculating sidenote positions');
+    if (window.sidenotePositioner) {
+        setTimeout(() => {
+            window.sidenotePositioner.recalculate();
+        }, 200);
+    }
+});
+</script>
+
+// <script>
+// class SidenotePositioner {
+//     constructor() {
+//         this.sidenotes = [];
+//         this.init();
+//     }
+
+//     init() {
+//         // Wait for layout to be complete
+//         setTimeout(() => {
+//             this.collectSidenotes();
+//             this.positionSidenotes();
+//             this.setupEventListeners();
+//         }, 100);
+//     }
+
+//     collectSidenotes() {
+//         const sidenoteElements = document.querySelectorAll('.sidenote');
+//         const paragraphs = document.querySelectorAll('.main-content p');
+        
+//         console.log('DEBUG: Found', sidenoteElements.length, 'sidenotes and', paragraphs.length, 'paragraphs');
+        
+//         this.sidenotes = Array.from(sidenoteElements).map(element => {
+//             const paragraphIndex = parseInt(element.getAttribute('data-paragraph-index'));
+//             const targetParagraph = paragraphs[paragraphIndex];
+            
+//             console.log('DEBUG: Sidenote', element.id, 'targets paragraph index', paragraphIndex, 'found paragraph:', !!targetParagraph);
+            
+//             return {
+//                 element,
+//                 targetParagraph,
+//                 paragraphIndex,
+//                 height: 0,
+//                 targetTop: 0,
+//                 finalTop: 0
+//             };
+//         });
+//     }
+
+//     positionSidenotes() {
+//         if (this.sidenotes.length === 0) {
+//             console.log('DEBUG: No sidenotes to position');
+//             return;
+//         }
+
+//         // Calculate initial positions based on target paragraphs
+//         this.sidenotes.forEach(sidenote => {
+//             if (sidenote.targetParagraph) {
+//                 const paragraphRect = sidenote.targetParagraph.getBoundingClientRect();
+//                 const contentWrapper = document.querySelector('.content-wrapper');
+                
+//                 if (!contentWrapper) {
+//                     console.error('DEBUG: Could not find .content-wrapper element');
+//                     return;
+//                 }
+                
+//                 const wrapperRect = contentWrapper.getBoundingClientRect();
+                
+//                 // Calculate position relative to the content wrapper
+//                 sidenote.targetTop = paragraphRect.top - wrapperRect.top;
+//                 sidenote.height = sidenote.element.offsetHeight || 100; // Fallback height
+                
+//                 console.log('DEBUG: Sidenote', sidenote.element.id, 
+//                     'paragraph rect:', paragraphRect.top, 
+//                     'wrapper rect:', wrapperRect.top,
+//                     'target top:', sidenote.targetTop,
+//                     'height:', sidenote.height);
+//             } else {
+//                 console.warn('DEBUG: Sidenote', sidenote.element.id, 'has no target paragraph');
+//                 sidenote.targetTop = 0;
+//                 sidenote.height = sidenote.element.offsetHeight || 100;
+//             }
+//         });
+
+//         // Sort by target position
+//         this.sidenotes.sort((a, b) => a.targetTop - b.targetTop);
+
+//         // Resolve overlaps
+//         this.resolveOverlaps();
+
+//         // Apply final positions
+//         this.applySidenotesPositions();
+//     }
+
+//     resolveOverlaps() {
+//         const minGap = 20; // Minimum gap between sidenotes
+
+//         for (let i = 0; i < this.sidenotes.length; i++) {
+//             const current = this.sidenotes[i];
+//             current.finalTop = Math.max(0, current.targetTop); // Ensure non-negative
+
+//             // Check for overlap with previous sidenotes
+//             for (let j = 0; j < i; j++) {
+//                 const previous = this.sidenotes[j];
+//                 const previousBottom = previous.finalTop + previous.height + minGap;
+                
+//                 if (current.finalTop < previousBottom) {
+//                     current.finalTop = previousBottom;
+//                     console.log('DEBUG: Moved sidenote', current.element.id, 'to avoid overlap, new top:', current.finalTop);
+//                 }
+//             }
+//         }
+//     }
+
+//     applySidenotesPositions() {
+//         this.sidenotes.forEach(sidenote => {
+//             sidenote.element.style.top = `${sidenote.finalTop}px`;
+//             console.log('DEBUG: Applied position to', sidenote.element.id, 'top:', sidenote.finalTop + 'px');
+//         });
+//     }
+
+//     setupEventListeners() {
+//         let resizeTimer;
+//         window.addEventListener('resize', () => {
+//             clearTimeout(resizeTimer);
+//             resizeTimer = setTimeout(() => {
+//                 console.log('DEBUG: Window resized, repositioning sidenotes');
+//                 this.positionSidenotes();
+//             }, 100);
+//         });
+
+//         // Highlight sidenotes on marker hover
+//         document.querySelectorAll('.sidenote-marker').forEach(marker => {
+//             marker.addEventListener('mouseenter', () => {
+//                 const sidenoteId = marker.getAttribute('data-sidenote-id');
+//                 const sidenote = document.getElementById('sidenote-' + sidenoteId);
+//                 if (sidenote) {
+//                     sidenote.style.backgroundColor = '#e8f4f8';
+//                     sidenote.style.borderLeftColor = '#007acc';
+//                 }
+//             });
+
+//             marker.addEventListener('mouseleave', () => {
+//                 const sidenoteId = marker.getAttribute('data-sidenote-id');
+//                 const sidenote = document.getElementById('sidenote-' + sidenoteId);
+//                 if (sidenote) {
+//                     sidenote.style.backgroundColor = '';
+//                     sidenote.style.borderLeftColor = '';
+//                 }
+//             });
+//         });
+//     }
+
+//     // Public method to recalculate positions
+//     recalculate() {
+//         console.log('DEBUG: Manually recalculating sidenote positions');
+//         this.collectSidenotes();
+//         this.positionSidenotes();
+//     }
+// }
+
+// document.addEventListener('DOMContentLoaded', () => {
+//     console.log('DEBUG: DOM loaded, initializing sidenote positioner');
+//     window.sidenotePositioner = new SidenotePositioner();
+// });
+
+// // Also initialize after a delay to ensure all content is rendered
+// window.addEventListener('load', () => {
+//     console.log('DEBUG: Window loaded, recalculating sidenote positions');
+//     if (window.sidenotePositioner) {
+//         setTimeout(() => {
+//             window.sidenotePositioner.recalculate();
+//         }, 200);
+//     }
+// });
+// </script>
+
+                <article class="prose card-body content-wrapper">
+                    <div class="main-content">
                     @templ.Raw(content)
+                    </div>
+                    <div>
+                        <p>Author: { fm.Author }</p>
+                    </div>
                 </article>
             </div>
         </div>

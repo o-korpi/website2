@@ -4,6 +4,7 @@ wpm: 250
 draft: false
 created: 2025-01-01
 updated: 2025-01-02
+author: Oscar Korpi
 ---
 
 

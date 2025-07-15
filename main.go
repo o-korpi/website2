@@ -24,6 +24,7 @@ import (
 	"github.com/rickb777/servefiles/v3"
 
 	"website/src/models"
+	p_ "website/src/parser"
 )
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -94,6 +95,7 @@ func (r *CustomRenderer) RenderNode(w io.Writer, node ast.Node, entering bool) a
 			// Postprocess code block to remove body tags, html tags
 			codeBlock := strings.ReplaceAll(formattedCode, "<body>", "")
 			codeBlock = strings.ReplaceAll(codeBlock, "</body>", "")
+			codeBlock = strings.ReplaceAll(codeBlock, "<body class=\"bg\">", "")
 			codeBlock = strings.ReplaceAll(codeBlock, "<html>", "")
 			codeBlock = strings.ReplaceAll(codeBlock, "</html>", "")
 			// Remove unnecessary styles
@@ -111,7 +113,8 @@ func (r *CustomRenderer) RenderNode(w io.Writer, node ast.Node, entering bool) a
 			codeBlock = strings.ReplaceAll(codeBlock, bgLine, "")
 			codeBlock = strings.ReplaceAll(codeBlock, bodyLine, "")
 
-			fmt.Fprintf(w, `<div >`)
+			// fmt.Fprintf(w, `<div class="mockup-code bg-[#303446]">`)
+			fmt.Fprintf(w, `<div>`)
 			fmt.Fprintf(w, "%s", codeBlock)
 			fmt.Fprintf(w, `</div>`)
 			return ast.GoToNext
@@ -142,26 +145,12 @@ func handleDynamic(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	// todo: remove me!
-	// frontmatter test
-	frontmatter, err := src.ScanFrontmatter(mdPath)
-	if err != nil {
-		log.Println("Error scanning frontmatter:", err)
-	} else {
-		log.Println("Frontmatter:", frontmatter)
-	}
-	parsedFm, err := src.ParseFrontmatter(frontmatter)
-	if err != nil {
-		log.Println("Error parsing frontmatter:", err)
-	} else {
-		log.Println("Parsed frontmatter:", parsedFm)
-		log.Println(parsedFm.Author, parsedFm.Created, parsedFm.Updated)
-	}
-	//
+	// Remove frontmatter before parsing
+	mdNoFrontmatter := src.RemoveFrontmatter(string(md))
 
 	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock
 	p := parser.NewWithExtensions(extensions)
-	doc := p.Parse(md)
+	doc := p.Parse([]byte(mdNoFrontmatter))
 
 	htmlFlags := html.CommonFlags | html.HrefTargetBlank
 	opts := html.RendererOptions{Flags: htmlFlags}
@@ -169,6 +158,9 @@ func handleDynamic(w http.ResponseWriter, r *http.Request) {
 	customRenderer := &CustomRenderer{Renderer: renderer}
 
 	renderedBytes := markdown.Render(doc, customRenderer)
+
+	// Handle sidenotes
+	renderedBytes = p_.ProcessSidenotes(renderedBytes)
 
 	// Handle $$ inline latex
 	// Replaces $$...$$ with $<div class="inline-latex-block">...</div>$
@@ -197,8 +189,6 @@ func handleDynamic(w http.ResponseWriter, r *http.Request) {
 		parsedBytes = append(parsedBytes, b)
 	}
 
-	// TODO: improve the code blocks, similar parsing to above
-
 	// Save the HTML
 	err = os.WriteFile(strings.Replace(mdPath, ".md", "", 1)+".html", parsedBytes, 0644)
 	if err != nil {
@@ -220,13 +210,25 @@ func handleDynamic(w http.ResponseWriter, r *http.Request) {
 
 	// Fancy breadcrumbs stuff
 	splitResource := strings.Split(resource, "/")
-	for i, part := range splitResource {
-		if i != len(splitResource)-1 {
-			splitResource[i] = strings.ToUpper(part[:1]) + part[1:] // Capitalize first letter
-		}
+	// for i, part := range splitResource {  // todo: consider removing this
+	// 	if i != len(splitResource)-1 {
+	// 		splitResource[i] = strings.ToUpper(part[:1]) + part[1:] // Capitalize first letter
+	// 	}
+	// }
+
+	// Frontmatter
+	frontmatter, err := src.ScanFrontmatter(mdPath)
+	if err != nil {
+		log.Fatal("Error scanning frontmatter:", err)
+	}
+	parsedFm, err := src.ParseFrontmatter(frontmatter)
+	if err != nil {
+		log.Println("Error parsing frontmatter:", err)
 	}
 
-	component := templates.Page(folder, splitResource, content)
+	// TODO: table of contents
+
+	component := templates.Page(folder, splitResource, *parsedFm, content)
 	ctx := r.Context()
 	_ = component.Render(ctx, w)
 }

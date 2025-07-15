@@ -3,7 +3,6 @@ package src
 import (
 	"bufio"
 	"errors"
-	"log"
 	"os"
 	"strings"
 
@@ -34,7 +33,6 @@ func ScanFrontmatter(path string) (string, error) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		log.Println("Line:", line)
 
 		if strings.TrimSpace(line) == "---" {
 			if inFrontmatter {
@@ -71,4 +69,28 @@ func ParseFrontmatter(content string) (*Frontmatter, error) {
 	}
 
 	return &fm, nil
+}
+
+func RemoveFrontmatter(content string) string {
+	lines := strings.Split(content, "\n")
+	var result []string
+	inFrontmatter := false
+	frontmatterEnded := false
+
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "---" && !frontmatterEnded {
+			if inFrontmatter {
+				frontmatterEnded = true
+				inFrontmatter = false
+			} else {
+				inFrontmatter = true
+			}
+			continue // Skip the frontmatter delimiter
+		}
+		if !inFrontmatter {
+			result = append(result, line)
+		}
+	}
+
+	return strings.Join(result, "\n")
 }

@@ -8,9 +8,10 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import "website/src"
 import "website/src/models"
 
-func Page(folder models.Folder, splitResource []string, content string) templ.Component {
+func Page(folder models.Folder, splitResource []string, fm src.Frontmatter, content string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -61,7 +62,7 @@ func Page(folder models.Folder, splitResource []string, content string) templ.Co
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(part)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/page.templ`, Line: 16, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/page.templ`, Line: 17, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -72,7 +73,7 @@ func Page(folder models.Folder, splitResource []string, content string) templ.Co
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</ul></div><div class=\"card bg-base-100 shadow-md w-full\"><article class=\"prose card-body\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</ul></div><div class=\"card bg-base-100 shadow-md w-full\"><script>\nclass SidenotePositioner {\n    constructor() {\n        this.sidenotes = [];\n        this.init();\n    }\n\n    init() {\n        // Wait for layout to be complete\n        setTimeout(() => {\n            this.collectSidenotes();\n            this.positionSidenotes();\n            this.setupEventListeners();\n        }, 100);\n    }\n\n    collectSidenotes() {\n        const sidenoteElements = document.querySelectorAll('.sidenote');\n        const paragraphs = document.querySelectorAll('.main-content p');\n        \n        console.log('DEBUG: Found', sidenoteElements.length, 'sidenotes and', paragraphs.length, 'paragraphs');\n        \n        this.sidenotes = Array.from(sidenoteElements).map(element => {\n            const paragraphIndex = parseInt(element.getAttribute('data-paragraph-index'));\n            const targetParagraph = paragraphs[paragraphIndex];\n            \n            console.log('DEBUG: Sidenote', element.id, 'targets paragraph index', paragraphIndex, 'found paragraph:', !!targetParagraph);\n            \n            return {\n                element,\n                targetParagraph,\n                paragraphIndex,\n                height: 0,\n                targetTop: 0,\n                finalTop: 0\n            };\n        });\n    }\n\n    positionSidenotes() {\n        if (this.sidenotes.length === 0) {\n            console.log('DEBUG: No sidenotes to position');\n            return;\n        }\n\n        // Calculate initial positions based on target paragraphs\n        this.sidenotes.forEach(sidenote => {\n            if (sidenote.targetParagraph) {\n                const paragraphRect = sidenote.targetParagraph.getBoundingClientRect();\n                const contentWrapper = document.querySelector('.content-wrapper');\n                \n                if (!contentWrapper) {\n                    console.error('DEBUG: Could not find .content-wrapper element');\n                    return;\n                }\n                \n                const wrapperRect = contentWrapper.getBoundingClientRect();\n                \n                // Calculate position relative to the content wrapper\n                sidenote.targetTop = paragraphRect.top - wrapperRect.top;\n                sidenote.height = sidenote.element.offsetHeight || 100; // Fallback height\n                \n                console.log('DEBUG: Sidenote', sidenote.element.id, \n                    'paragraph rect:', paragraphRect.top, \n                    'wrapper rect:', wrapperRect.top,\n                    'target top:', sidenote.targetTop,\n                    'height:', sidenote.height);\n            } else {\n                console.warn('DEBUG: Sidenote', sidenote.element.id, 'has no target paragraph');\n                sidenote.targetTop = 0;\n                sidenote.height = sidenote.element.offsetHeight || 100;\n            }\n        });\n\n        // Sort by target position\n        this.sidenotes.sort((a, b) => a.targetTop - b.targetTop);\n\n        // Resolve overlaps\n        this.resolveOverlaps();\n\n        // Apply final positions\n        this.applySidenotesPositions();\n    }\n\n    resolveOverlaps() {\n        const minGap = 20; // Minimum gap between sidenotes\n\n        for (let i = 0; i < this.sidenotes.length; i++) {\n            const current = this.sidenotes[i];\n            current.finalTop = Math.max(0, current.targetTop); // Ensure non-negative\n\n            // Check for overlap with previous sidenotes\n            for (let j = 0; j < i; j++) {\n                const previous = this.sidenotes[j];\n                const previousBottom = previous.finalTop + previous.height + minGap;\n                \n                if (current.finalTop < previousBottom) {\n                    current.finalTop = previousBottom;\n                    console.log('DEBUG: Moved sidenote', current.element.id, 'to avoid overlap, new top:', current.finalTop);\n                }\n            }\n        }\n    }\n\n    applySidenotesPositions() {\n        this.sidenotes.forEach(sidenote => {\n            sidenote.element.style.top = `${sidenote.finalTop}px`;\n            console.log('DEBUG: Applied position to', sidenote.element.id, 'top:', sidenote.finalTop + 'px');\n        });\n    }\n\n    setupEventListeners() {\n        let resizeTimer;\n        window.addEventListener('resize', () => {\n            clearTimeout(resizeTimer);\n            resizeTimer = setTimeout(() => {\n                console.log('DEBUG: Window resized, repositioning sidenotes');\n                this.positionSidenotes();\n            }, 100);\n        });\n\n        // Highlight sidenotes on marker hover\n        document.querySelectorAll('.sidenote-marker').forEach(marker => {\n            marker.addEventListener('mouseenter', () => {\n                const sidenoteId = marker.getAttribute('data-sidenote-id');\n                const sidenote = document.getElementById('sidenote-' + sidenoteId);\n                if (sidenote) {\n                    sidenote.style.backgroundColor = '#e8f4f8';\n                    sidenote.style.borderLeftColor = '#007acc';\n                }\n            });\n\n            marker.addEventListener('mouseleave', () => {\n                const sidenoteId = marker.getAttribute('data-sidenote-id');\n                const sidenote = document.getElementById('sidenote-' + sidenoteId);\n                if (sidenote) {\n                    sidenote.style.backgroundColor = '';\n                    sidenote.style.borderLeftColor = '';\n                }\n            });\n        });\n    }\n\n    // Public method to recalculate positions\n    recalculate() {\n        console.log('DEBUG: Manually recalculating sidenote positions');\n        this.collectSidenotes();\n        this.positionSidenotes();\n    }\n}\n\ndocument.addEventListener('DOMContentLoaded', () => {\n    console.log('DEBUG: DOM loaded, initializing sidenote positioner');\n    window.sidenotePositioner = new SidenotePositioner();\n});\n\n// Also initialize after a delay to ensure all content is rendered\nwindow.addEventListener('load', () => {\n    console.log('DEBUG: Window loaded, recalculating sidenote positions');\n    if (window.sidenotePositioner) {\n        setTimeout(() => {\n            window.sidenotePositioner.recalculate();\n        }, 200);\n    }\n});\n</script><article class=\"prose card-body content-wrapper\"><div class=\"main-content\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -80,7 +81,20 @@ func Page(folder models.Folder, splitResource []string, content string) templ.Co
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</article></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div><p>Author: ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fm.Author)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/page.templ`, Line: 364, Col: 46}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</p></div></article></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

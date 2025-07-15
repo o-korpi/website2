@@ -22,7 +22,7 @@ func FileTree(folder string, selectedPath string) (Folder, error) {
 	// Get the display name for this folder
 	splitPath := strings.Split(folder, string(os.PathSeparator))
 	displayName := splitPath[len(splitPath)-1] // Get the last part of the path
-	displayName = strings.ToUpper(displayName[:1]) + displayName[1:]
+	// displayName = strings.ToUpper(displayName[:1]) + displayName[1:]  // removed capitalization for now
 
 	rootFolder := Folder{
 		Name:       displayName,

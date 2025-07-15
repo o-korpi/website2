@@ -4,3 +4,85 @@
   text-align: center;
 }
 
+
+
+
+/* Content wrapper */
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    padding: 2rem;
+}
+
+/* Main content area */
+.main-content {
+    max-width: 600px;
+    margin-right: 300px; /* Space for sidenotes */
+    position: relative;
+}
+
+/* Sidenote positioning - float to the right and pull out of flow */
+/* .sidenote {
+    width: 250px;
+    margin-left: 50px; 
+    margin-right: -300px;
+    margin-bottom: 1rem;
+    background-color: #f9f9f9;
+    border-left: 4px solid #ddd;
+    padding: 1rem;
+    font-size: 0.85em;
+    color: #666;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+} */
+
+.sidenote:hover {
+    background-color: #f0f0f0;
+    /* border-left-color: #999; */
+}
+
+/* Sidenote markers in text */
+.sidenote-marker {
+    display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    background: #007acc;
+    color: white;
+    text-align: center;
+    line-height: 1.2em;
+    border-radius: 50%;
+    font-size: 0.8em;
+    font-weight: bold;
+    cursor: pointer;
+    vertical-align: baseline;
+    margin: 0 2px;
+}
+
+.sidenote-marker:hover {
+    background: #005fa3;
+}
+
+/* Responsive design */
+@media (max-width: 1000px) {
+    .main-content {
+        margin-right: 0;
+        max-width: 100%;
+    }
+    
+    .sidenote {
+        float: none;
+        margin-right: 0;
+        margin-left: 0;
+        width: auto;
+        margin-bottom: 1rem;
+        border-left: none;
+        border-top: 4px solid #ddd;
+        padding-top: 1rem;
+    }
+    
+    .sidenote-marker {
+        display: none;
+    }
+}
