@@ -33,6 +33,8 @@ Hello world! Lorem ipsum dolor sit amet.
 
 Test.
 
+Lorem ipsum dolor sit amet. Abc. {sidenote Test sidenote 1. Maybe with some really long text too} Test with two sidenotes 
+te same paragraph. Will this work? {sidenote Abc}
 
 ## Table of contents
 Self-explanatory.

@@ -8,6 +8,98 @@ import (
 	"sync/atomic"
 )
 
+func error(msg string) {
+	fmt.Errorf("Error at %s", msg)
+}
+
+type TokenType int
+
+const (
+	leftMeta = iota
+	rightMeta
+	sidenote
+	sidenoteBlock
+	chartBlock
+	literal
+	toc
+	eof
+)
+
+type Token struct {
+	typ TokenType
+	val string
+}
+
+type Lexer struct {
+	start   int
+	current int
+	input   string
+	tokens  []Token
+}
+
+func (l *Lexer) isAtEnd() bool {
+	return l.current > len(l.input)
+}
+
+func (l *Lexer) scanTokens() []Token {
+	for !l.isAtEnd() {
+		l.start = l.current
+		l.scanToken()
+	}
+
+	l.tokens = append(l.tokens, Token{typ: eof})
+	return l.tokens
+}
+
+func (l *Lexer) scanToken() {
+	c := l.advance()
+	switch c {
+	case '{':
+		if l.accept('%') {
+			l.tokens = append(l.tokens, Token{typ: leftMeta, val: l.value()})
+		}
+	default:
+		error("Unexpected character")
+	}
+}
+
+func (l *Lexer) advance() byte {
+	return l.input[l.current]
+}
+
+func (l *Lexer) peek() byte {
+	if l.isAtEnd() {
+		return 0
+	}
+
+	return l.input[l.current]
+}
+
+func (l *Lexer) accept(expected byte) bool {
+	if l.isAtEnd() {
+		return false
+	}
+	if l.input[l.current] != expected {
+		return false
+	}
+
+	l.current++
+	return true
+}
+
+func (l *Lexer) value() string {
+	return l.input[l.start:l.current]
+}
+
+func newLexer(input string) *Lexer {
+	return &Lexer{
+		start:   0,
+		current: 0,
+		input:   input,
+		tokens:  make([]Token, 0),
+	}
+}
+
 // Global counter for sidenote IDs
 var sidenoteCounter int64
 
@@ -21,6 +113,30 @@ type SidenoteMatch struct {
 	IsInline     bool
 	ID           int64
 	OriginalText []byte
+}
+
+func postprocessSidenotes(content []byte) []byte {
+	// Handle {sidenote: abc} and {sidenote} blocks
+	parsedBytes := make([]byte, 0)
+
+	inSidenote := false
+	inCodeblock := false
+
+	sidenoteOpener := "{sidenote"
+
+	for i, b := range content {
+		// Check if we get a sidenote
+		if b == '{' && i+len(sidenoteOpener)-1 < len(content) && string(content[i:i+len(sidenoteOpener)]) == sidenoteOpener {
+			if inSidenote {
+				// Already in a sidenote, just append the character
+				parsedBytes = append(parsedBytes, b)
+				continue
+			}
+			inSidenote = true
+			continue
+		}
+		i += 20
+	}
 }
 
 func findCodeBlockRanges(content []byte) []CodeBlockRange {
@@ -67,23 +183,22 @@ func ProcessSidenotes(content []byte) []byte {
 	// Find all sidenotes
 	sidenoteMatches := findAllSidenotes(content, codeBlocks)
 
+	markerClasses := "sidenote-marker"
+	sidenoteClasses := "sidenote float-right clear-right ml-[50px] mr-[-300px] w-[250px] -mt-12 mb-2 border-l-4 border-primary p-2 text-xs transition-all duration-300 ease-in-out hover:bg-base-300"
+
 	// Process sidenotes in reverse order so positions don't shift
 	for i := len(sidenoteMatches) - 1; i >= 0; i-- {
 		match := sidenoteMatches[i]
 
 		var replacement []byte
 		if match.IsInline {
-			markerClasses := "sidenote-marker"
 			marker := fmt.Sprintf(`<span class="%s" data-sidenote-id="%d">%d</span>`, markerClasses, match.ID, match.ID)
-
-			sidenoteClasses := "sidenote inline float-right clear-right ml-[50px] mr-[-300px] w-[250px] mb-1 glass border border-l border-l-4 border-primary p-1 text-sm rounded shadow transition-all duration-300 ease-in-out"
 			sidenote := fmt.Sprintf(`<aside class="%s" id="sidenote-%d">%s</aside>`, sidenoteClasses, match.ID, html.EscapeString(match.Content))
 
 			replacement = []byte(marker + sidenote)
 		} else {
-			replacement = []byte(fmt.Sprintf(
-				`<aside class="float-right clear-right w-64 ml-4 -mr-80 mb-4 bg-base-200 border-l-4 border-base-300 p-4 text-sm text-base-content rounded-lg shadow-lg transition-all duration-300 hover:bg-base-300 hover:border-primary" id="sidenote-%d">%s</aside>`,
-				match.ID, html.EscapeString(match.Content)))
+			sidenote := fmt.Sprintf(`<aside class="%s" id="sidenote-%d">%s</aside>`, sidenoteClasses, match.ID, html.EscapeString(match.Content))
+			replacement = []byte(sidenote)
 		}
 
 		// Replace the match in the content

@@ -38,11 +38,6 @@
     transition: all 0.3s ease;
 } */
 
-.sidenote:hover {
-    background-color: #f0f0f0;
-    /* border-left-color: #999; */
-}
-
 /* Sidenote markers in text */
 .sidenote-marker {
     display: inline-block;

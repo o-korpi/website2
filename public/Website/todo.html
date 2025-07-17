@@ -9,7 +9,7 @@ Bonus with footnotes would probably be automatic numbering, suitable for referen
 
 <p>Using the following syntax
 <code>{sidenote: This is a sidenote!}</code>
-or <span class="sidenote-marker" data-sidenote-id="1">1</span><aside class="sidenote inline float-right clear-right ml-[50px] mr-[-300px] w-[250px] mb-1 glass border border-l border-l-4 border-primary p-1 text-sm rounded shadow transition-all duration-300 ease-in-out" id="sidenote-1">This is a sidenote, for example.</aside></p>
+or <span class="sidenote-marker" data-sidenote-id="1">1</span><aside class="sidenote float-right clear-right ml-[50px] mr-[-300px] w-[250px] -mt-12 mb-2 border-l-4 border-primary p-2 text-xs transition-all duration-300 ease-in-out hover:bg-base-300" id="sidenote-1">This is a sidenote, for example.</aside></p>
 <div>
 <style type="text/css">
 
@@ -97,12 +97,14 @@ or <span class="sidenote-marker" data-sidenote-id="1">1</span><aside class="side
 
 </div>
 <p>Should use <code>&lt;aside&gt;</code> element.
-Example to the right! <span class="sidenote-marker" data-sidenote-id="2">2</span><aside class="sidenote inline float-right clear-right ml-[50px] mr-[-300px] w-[250px] mb-1 glass border border-l border-l-4 border-primary p-1 text-sm rounded shadow transition-all duration-300 ease-in-out" id="sidenote-2">Hello world!</aside></p>
+Example to the right! <span class="sidenote-marker" data-sidenote-id="2">2</span><aside class="sidenote float-right clear-right ml-[50px] mr-[-300px] w-[250px] -mt-12 mb-2 border-l-4 border-primary p-2 text-xs transition-all duration-300 ease-in-out hover:bg-base-300" id="sidenote-2">Hello world!</aside></p>
 
 <p>And next to this paragraph there should be a big one.
-<aside class="float-right clear-right w-64 ml-4 -mr-80 mb-4 bg-base-200 border-l-4 border-base-300 p-4 text-sm text-base-content rounded-lg shadow-lg transition-all duration-300 hover:bg-base-300 hover:border-primary" id="sidenote-3">Hello world! Lorem ipsum dolor sit amet.</aside></p>
-
+<aside class="sidenote float-right clear-right ml-[50px] mr-[-300px] w-[250px] -mt-12 mb-2 border-l-4 border-primary p-<span class="sidenote-marker" data-sidenote-id="3">3</span><aside class="sidenote float-right clear-right ml-[50px] mr-[-300px] w-[250px] -mt-12 mb-2 border-l-4 border-primary p-2 text-xs transition-all duration-300 ease-in-out hover:bg-base-300" id="sidenote-3">Test sidenote 1. Maybe with some really long text too</aside>300" id="sidenote-5">Hello world! Lorem ipsum dolor sit amet<span class="sidenote-marker" data-sidenote-id="4">4</span><aside class="sidenote float-right clear-right ml-[50px] mr-[-300px] w-[250px] -mt-12 mb-2 border-l-4 border-primary p-2 text-xs transition-all duration-300 ease-in-out hover:bg-base-300" id="sidenote-4">Abc</aside>
 <p>Test.</p>
+
+<p>Lorem ipsum dolor sit amet. Abc. {sidenote Test sidenote 1. Maybe with some really long text too} Test with two sidenotes
+te same paragraph. Will this work? {sidenote Abc}</p>
 
 <h2 id="table-of-contents">Table of contents</h2>
 
